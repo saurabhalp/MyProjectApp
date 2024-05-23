@@ -1,6 +1,7 @@
 package com.saurabhalp.myprojectapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -43,7 +44,6 @@ fun Screen2(navController: NavHostController) {
     var email = remember { mutableStateOf("") }
     var passwordVisible = remember { mutableStateOf(false) }
 
-
     Box(Modifier.fillMaxSize()){
         Image(
             painter = painterResource(R.drawable.bg),
@@ -85,9 +85,8 @@ fun Screen2(navController: NavHostController) {
                    }
                )
                 Spacer(Modifier.height(16.dp))
-               Button(onClick = {
-                   TODO()
-               }) {
+               Button(onClick = {}
+               ) {
                    Text("Register",
 
                        )

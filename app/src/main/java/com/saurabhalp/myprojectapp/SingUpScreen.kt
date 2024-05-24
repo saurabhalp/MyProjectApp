@@ -147,11 +147,8 @@ fun Screen2(navController: NavHostController) {
                                            Toast.makeText(
                                                context,
                                                "${e.message}",
-                                               Toast.LENGTH_SHORT
-                                           )
-                                               .show()
+                                               Toast.LENGTH_SHORT).show()
                                        }
-
                                    }
                                }
                            }
@@ -165,9 +162,6 @@ fun Screen2(navController: NavHostController) {
                        )
                            .show()
                    }
-
-
-
                }
         ) {
                    Text(
@@ -177,7 +171,10 @@ fun Screen2(navController: NavHostController) {
                }
                }
 
-               TextButton(onClick ={ navController.navigate("login")},
+               TextButton(onClick = {
+                   navController.navigate("login")
+                   { popUpTo("login") { inclusive = true } }
+               },
                    colors =  ButtonDefaults.textButtonColors(Color.White)) {
                    Text("Already have a account? SignIn",
                        color = Color.Blue)

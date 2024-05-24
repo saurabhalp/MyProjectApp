@@ -97,8 +97,11 @@ fun MainScreen() {
     NavHost(navController, startDestination = "login") {
         composable("login") { LoginScreen(navController) }
         composable("signup") { Screen2(navController) }
-        composable("Greeting/{name}") { backStackEntry ->
-            Greeting(name = backStackEntry.arguments?.getString("name") ?: "User")
+//        composable("Greeting/{name}") { backStackEntry ->
+//            Greeting(name = backStackEntry.arguments?.getString("name") ?: "User")
+//        }
+        composable("pdfScreen"){
+            PdfListScreen(navController)
         }
     }
 }

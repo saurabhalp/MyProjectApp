@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,117 +46,134 @@ import com.saurabhalp.myprojectapp.ui.theme.MyProjectAppTheme
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
-    var email = remember { mutableStateOf("") }
-    var password = remember { mutableStateOf("") }
-    var passwordVisible = remember { mutableStateOf(false) }
-    var context = LocalContext.current
-    var loading by remember { mutableStateOf(false) }
-    auth = Firebase.auth
-    Box(Modifier.fillMaxSize()) {
+        var email = remember { mutableStateOf("") }
+        var password = remember { mutableStateOf("") }
+        var passwordVisible = remember { mutableStateOf(false) }
+        var context = LocalContext.current
+        var loading by remember { mutableStateOf(false) }
+        auth = Firebase.auth
+        Box(Modifier.fillMaxSize()) {
 
-        Image(
-            painter = painterResource(R.drawable.bg),
-            contentDescription = "BackgroundImage",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxHeight()
-        )
-
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .padding(16.dp)
-                .matchParentSize()
-        ) {
             Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = "AppLogo",
-                modifier = Modifier.size(200.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = email.value,
-                onValueChange = { email.value = it },
-                modifier = Modifier,
-                keyboardOptions = KeyboardOptions
-                    .Default.copy(keyboardType = KeyboardType.Email),
-                label = {
-                    Text(
-                        text = "Email"
-                    )
-                }
-
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = { password.value = it },
-                visualTransformation = if (passwordVisible.value) VisualTransformation.None
-                else PasswordVisualTransformation(),
-                label = {
-                    Text(
-                        text = "Password"
-                    )
-                }
-
+                painter = painterResource(R.drawable.bg),
+                contentDescription = "BackgroundImage",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxHeight()
             )
 
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .matchParentSize()
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "AppLogo",
+                    modifier = Modifier.size(200.dp)
+                )
 
-            // Login Button
-            if (loading) {
-                CircularProgressIndicator()
-            } else {
-                Button(
-                    onClick = {
-                        loading=true
-                        try {
-                            auth.signInWithEmailAndPassword(email.value, password.value)
-                                .addOnCompleteListener {
-                                    if (it.isSuccessful) {
-                                        val user = auth.currentUser?.uid
-                                        if (user != null) {
-                                            fetchUsername(uid = user, context = context) { name ->
-                                                navController.navigate("Greeting/$name")
-                                            }
-                                        }
-                                    } else {
-                                        loading=false
-                                        Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-                                    }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = email.value,
+                    onValueChange = { email.value = it },
+                    modifier = Modifier,
+                    keyboardOptions = KeyboardOptions
+                        .Default.copy(keyboardType = KeyboardType.Email),
+                    label = {
+                        Text(
+                            text = "Email"
+                        )
+                    }
+
+                )
+                Spacer(modifier = Modifier.height(8.dp))
 
 
-                                }
-
-                        } catch (e: Exception) {
-                            loading=false
-                            Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-
+                OutlinedTextField(
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    visualTransformation = if (passwordVisible.value) VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                    label = {
+                        Text(
+                            text = "Password"
+                        )
                     },
-                    modifier = Modifier.width(200.dp)
+                    trailingIcon = {
+                        painterResource(id = R.drawable.icon1)
 
-                ) {
-                    Text("Login")
-                }
+
+                        IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                            Icon(
+                                painter = painterResource(R.drawable.icon1),
+                                contentDescription = null,
+                                modifier = Modifier.padding(4.dp)
+                            )
+                        }
+                    }
+
+                )
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Sign-up Text
-                TextButton(onClick = { navController.navigate("signup") }) {
-                    Text("Don't have an account? Sign up", color = Color.Blue)
+                // Login Button
+                if (loading) {
+                    CircularProgressIndicator()
+                } else {
+                    Button(
+                        onClick = {
+                            loading = true
+                            try {
+                                auth.signInWithEmailAndPassword(email.value, password.value)
+                                    .addOnCompleteListener {
+                                        if (it.isSuccessful) {
+                                            val user = auth.currentUser?.uid
+                                            if (user != null) {
+                                                fetchUsername(
+                                                    uid = user,
+                                                    context = context
+                                                ) { name ->
+                                                    navController.navigate("pdfScreen"){
+                                                        popUpTo("login"){inclusive = true}
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            loading = false
+                                            Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
+
+
+                                    }
+
+                            } catch (e: Exception) {
+                                loading = false
+                                Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+
+                        },
+                        modifier = Modifier.width(200.dp)
+
+                    ) {
+                        Text("Login")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Sign-up Text
+                    TextButton(onClick = { navController.navigate("signup") }) {
+                        Text("Don't have an account? Sign up", color = Color.Blue)
+                    }
                 }
             }
         }
-        }
     }
-
 
 
 @Preview(showBackground = true)

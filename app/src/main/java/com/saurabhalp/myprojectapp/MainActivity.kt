@@ -1,5 +1,6 @@
 package com.saurabhalp.myprojectapp
 
+import MainViewModel
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -94,15 +95,22 @@ lateinit var auth: FirebaseAuth
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "login") {
+    NavHost(navController, startDestination = "PdfScreen") {
         composable("login") { LoginScreen(navController) }
         composable("signup") { Screen2(navController) }
 //        composable("Greeting/{name}") { backStackEntry ->
 //            Greeting(name = backStackEntry.arguments?.getString("name") ?: "User")
 //        }
-        composable("pdfScreen"){
+        composable("PdfScreen") {
             PdfListScreen(navController)
         }
+
+//    composable("childList/{parentId}") { backStackEntry ->
+//        val parentId = backStackEntry.arguments?.getString("parentId") ?: ""
+//        ChildListScreen(viewModel = MainViewModel())
+//
+//    }
+//    }
     }
 }
 

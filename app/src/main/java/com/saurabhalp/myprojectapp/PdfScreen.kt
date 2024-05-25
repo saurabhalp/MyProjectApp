@@ -40,9 +40,55 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import javax.security.auth.Subject
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
+
+//@Composable
+//fun SubjectList(){
+//    var SubjectList = remember { mutableStateListOf<subjects>()}
+//    val db = Firebase.firestore
+//    val context = LocalContext.current
+//
+//    LaunchedEffect(Unit) {
+//        try {
+//            val documents = db.collection("pdfs").get().await()
+//            for (document in documents) {
+//                val name = document.id
+//                val url = document.getString("url") ?: "Url Not Accessible"
+//                SubjectList.add(subjects(name, url))
+//            }
+//        } catch (e: Exception) {
+//            // Handle exceptions
+//            Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(title = { Text("Subject List") })
+//        }
+//    ){
+//        contentPadding->
+//        Column(Modifier.padding(contentPadding).padding(16.dp)) {
+//            PdfItemView(subjects("Check", "No Url"))
+//            SubjectList.forEach { pdf ->
+//                PdfItemView(pdf)
+//                Spacer(modifier = Modifier.height(8.dp))
+//            }
+//
+//            TextButton(onClick = {  })
+//
+//            {
+//                Text(
+//                    text = "GO Back"
+//                )
+//            }
+//
+//        }
+//    }
+//}
 
 @Composable
 fun PdfListScreen(navController: NavHostController) {
@@ -51,8 +97,9 @@ fun PdfListScreen(navController: NavHostController) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+
         try {
-            val documents = db.collection("pdfs").get().await()
+            val documents = db.collection("pdfs").document("fdsa").collection("pdf1").get().await()
             for (document in documents) {
                 val name = document.getString("name") ?: "Not Found"
                 val url = document.getString("url") ?: "Url Not Accessible"
@@ -70,19 +117,19 @@ fun PdfListScreen(navController: NavHostController) {
         }
     ) {contentPadding->
             Column(modifier = Modifier.padding(contentPadding).padding(16.dp)) {
-                PdfItemView(NotesPdf("Check","No Url"))
+                PdfItemView(NotesPdf("Check", "No Url"))
                 pdfItems.forEach { pdf ->
                     PdfItemView(pdf)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-            }
 
-            TextButton(onClick = { navController.navigate("login") })
+                TextButton(onClick = { navController.navigate("login") })
 
-            {
-                Text(
-                    text = "GO Back"
-                )
+                {
+                    Text(
+                        text = "GO Back"
+                    )
+                }
             }
         }
     }
@@ -111,7 +158,7 @@ fun PdfItemView(pdf: NotesPdf) {
                 text = AnnotatedString("Open PDF"),
                 onClick = {
                     val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(Uri.parse(pdf.url), "application/pdf")
+                        setDataAndType(Uri.parse(pdf.name), "application/pdf")
                         flags = Intent.FLAG_ACTIVITY_NO_HISTORY
                     }
                     context.startActivity(intent)
@@ -123,9 +170,5 @@ fun PdfItemView(pdf: NotesPdf) {
 }
 
 
-@Preview
-@Composable
-fun previewer(){
-    PdfListScreen( rememberNavController() )
-}
+
 

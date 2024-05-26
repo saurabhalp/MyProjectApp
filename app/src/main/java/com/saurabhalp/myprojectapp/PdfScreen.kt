@@ -62,6 +62,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.saurabhalp.myprojectapp.data.DataSource
 import com.saurabhalp.myprojectapp.ItemRepository
@@ -109,21 +110,6 @@ fun App2(navController: NavController,id:String) {
 fun subjectList(affirmationList : List<Subject>,navController: NavController,viewModel: MainViewModel) {
 
     Scaffold(
-        bottomBar= {
-            Row (Modifier.fillMaxWidth().background(Color.White)){
-                Button(onClick = {navController.navigate("home2")},
-                    Modifier.weight(1f)) { Text("Notes")
-                }
-                Button(onClick = {},
-                    Modifier.weight(1f)) { Text("LabFile")
-                }
-                Button(onClick = {},
-                    Modifier.weight(1f)) { Text("Notice")
-                }
-                Button(onClick = {navController.navigate("Profile")},
-                    Modifier.weight(1f)) { Text("12")
-                }}
-        },
         topBar= {
             TopAppBar(title = { Text("Subject List") })
         },
@@ -151,10 +137,11 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesList(id: String,navController: NavController) { var db = Firebase.firestore
-    var loading by remember { mutableStateOf( true)}
+fun NotesList(id: String,navController: NavController) {
+    var db = Firebase.firestore
+    var loading by remember { mutableStateOf(true) }
     var context = LocalContext.current
-  var pdfItems  = remember { mutableStateListOf<NotesPdf>() }
+    var pdfItems = remember { mutableStateListOf<NotesPdf>() }
     LaunchedEffect(Unit) {
         try {
             val documents = db.collection("pdfs").document("fdsa").collection("pdf1").get().await()
@@ -169,56 +156,39 @@ fun NotesList(id: String,navController: NavController) { var db = Firebase.fires
             Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-        Scaffold(
-            bottomBar= {
-                Row (Modifier.fillMaxWidth().background(Color.White)){
-                    Button(onClick = {navController.navigate("home2")},
-                        Modifier.weight(1f)) { Text("Notes")
-                    }
-                    Button(onClick = {},
-                        Modifier.weight(1f)) { Text("LabFile")
-                    }
-                    Button(onClick = {},
-                        Modifier.weight(1f)) { Text("Notice")
-                    }
-                    Button(onClick = {navController.navigate("login")},
-                        Modifier.weight(1f)) { Text("12")
-                    }}
-            },
-            topBar = {
-                TopAppBar(title = { Text("Notes") })
 
-            }
-        )
-        { contentPadding ->
-
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(contentPadding)
-                        .padding(8.dp)
-                ) {
-                    if (loading) {
-                        CircularProgressIndicator()
-                    } else {
-                    LazyColumn {
-                        items(pdfItems) { itt ->
-                            NotesCard(
-                                PdfItem(itt.name, itt.url),
-                            )
-                        }
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Units") })
+        }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize().padding(it)
+                .padding(8.dp)
+        ) {
+            if (loading) {
+                CircularProgressIndicator()
+            } else {
+                LazyColumn {
+                    items(pdfItems) { itt ->
+                        NotesCard(
+                            PdfItem(itt.name, itt.url),
+                        )
                     }
-
-                        TextButton(onClick = {MainViewModel().logout()
-                            navController.navigate("login")
-                        }
-                        ) { Text(text = "Logout") }
                 }
+
+                TextButton(onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate("login")
+                }
+                ) { Text(text = "Logout") }
             }
         }
     }
+}
+
 
 @Composable
 fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController ){
@@ -244,7 +214,6 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
                 },Modifier.weight(1f).align(Alignment.CenterVertically)
                    ) {
                     Text( text = "Open",
-                        color = Color.Blue,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
@@ -261,32 +230,40 @@ fun NotesCard(subject:PdfItem){
         .fillMaxWidth().height(100.dp)
         .padding(8.dp)
     ){
-        Column (Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center){
-                Text(
-                    text = subject.name,
-                    modifier = Modifier.padding(8.dp)
-                )
-            ClickableText(
-                text = AnnotatedString("Open PDF"),
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(Uri.parse(subject.url), "application/pdf")
-                        flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-                    }
-                    context.startActivity(intent)
+            Box(Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier.fillMaxSize().align(Alignment.Center),
+                ) {
+                    Text(
+                        text = subject.name,
+                        Modifier.weight(2f)
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 20.dp),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    ClickableText(
+                        text = AnnotatedString("Open PDF"),
+                        Modifier.weight(1f).align(Alignment.CenterVertically),
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(Uri.parse(subject.url), "application/pdf")
+                                flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+                            }
+                            context.startActivity(intent)
+                        }
+                    )
+
+
                 }
-            )
-
-
+            }
         }
-    }
 }
 
 @Preview
 @Composable
 fun notePreview(){
-    SubjectCard(Subject(R.string.Subject3,""), {}, rememberNavController())
+    NotesCard(PdfItem("Name","url"))
 }
 
 

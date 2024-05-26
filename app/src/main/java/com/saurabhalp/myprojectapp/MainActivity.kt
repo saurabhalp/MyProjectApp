@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
@@ -113,26 +114,41 @@ fun previewHome(){
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
     val navController = rememberNavController()
-    Scaffold(
-        bottomBar = { Row(){ Button(onClick = {},Modifier.weight(1f)){ Text("R1") }
-            Button(onClick = {},Modifier.weight(1f)){ Text("R1") }
-            Button(onClick = {},Modifier.weight(1f)){ Text("R1") } }  }
-    ) {
-    }
 
-  var user by rememberSaveable { mutableStateOf(MainViewModel().isLoggedIn) }
-    NavHost(navController = navController, startDestination =
-    if(user!=null) "home2" else
-        "login") {
-        composable("login") { LoginScreen(navController) }
-        composable("signup") { Screen2(navController) }
-        composable("home2") { App(navController) }
-        composable("App2/{detailText}") { backStackEntry ->
-            val detailText = backStackEntry.arguments?.getString("detailText") ?: ""
-            App2(navController,detailText)
+    Scaffold(
+        modifier = Modifier.padding(bottom = 16.dp),
+        bottomBar = {
+                Row (Modifier.fillMaxWidth().background(Color.White)){
+                    Button(onClick = {navController.navigate("home2")},
+                        Modifier.weight(1f).padding(3.dp)) { Text("Notes", )
+                    }
+                    Button(onClick = { },
+                        Modifier.weight(1f).padding(3.dp)) { Text("LabFile",maxLines = 1)
+                    }
+                    Button(onClick = {},
+                        Modifier.weight(1f).padding(3.dp)) { Text("Notice")
+                    }
+                    Button(onClick = {},
+                        Modifier.weight(1f).padding(3.dp)) { Text("Profile")
+                    }}
+
         }
-}
-}
+    ) {
+            NavHost(
+                navController = navController, startDestination =
+                if (FirebaseAuth.getInstance().currentUser != null) "home2" else
+                    "login"
+            ) {
+                composable("login") { LoginScreen(navController) }
+                composable("signup") { Screen2(navController) }
+                composable("home2") { App(navController) }
+                composable("App2/{detailText}") { backStackEntry ->
+                    val detailText = backStackEntry.arguments?.getString("detailText") ?: ""
+                    App2(navController, detailText)
+                }
+            }
+        }
+    }
 
 
 

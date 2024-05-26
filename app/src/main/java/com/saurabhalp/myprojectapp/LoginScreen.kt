@@ -4,18 +4,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,6 +47,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -51,14 +61,14 @@ fun LoginScreen(navController: NavHostController) {
     var passwordVisible = remember { mutableStateOf(false) }
     var context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
-    auth = Firebase.auth
+
     Box(Modifier.fillMaxSize()) {
 
         Image(
             painter = painterResource(R.drawable.bg),
             contentDescription = "BackgroundImage",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.fillMaxSize()
         )
 
 //
@@ -66,9 +76,10 @@ fun LoginScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .padding(16.dp)
-                    .matchParentSize()
+                    .padding(16.dp).fillMaxSize()
+
             ) {
+
                 Image(
                     painter = painterResource(R.drawable.ic_launcher_foreground),
                     contentDescription = "AppLogo",
@@ -114,7 +125,7 @@ fun LoginScreen(navController: NavHostController) {
                                 modifier = Modifier.padding(4.dp)
                             )
                         }
-                    }
+                    },
 
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -127,20 +138,19 @@ fun LoginScreen(navController: NavHostController) {
                         onClick = {
                             loading = true
                             try {
-                                auth.signInWithEmailAndPassword(email.value, password.value)
+                                FirebaseAuth.getInstance()
+                                    .signInWithEmailAndPassword(email.value, password.value)
                                     .addOnCompleteListener {
                                         if (it.isSuccessful) {
                                             loading = false
                                             MainViewModel().login()
                                             navController.navigate("home2")
+                                        } else {
+                                            loading = false
+                                            Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
+                                                .show()
                                         }
-                                    else
-                                    {
-                                    loading = false
-                                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
-                                        .show()
                                     }
-                            }
                             } catch (e: Exception) {
                                 loading = false
                                 Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
@@ -152,6 +162,7 @@ fun LoginScreen(navController: NavHostController) {
                     ) {
                         Text("Login")
                     }
+                }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -163,7 +174,7 @@ fun LoginScreen(navController: NavHostController) {
             }
        }
 
-    }
+
 
 @Composable
 @Preview

@@ -39,29 +39,29 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.saurabhalp.myprojectapp.ui.theme.MyProjectAppTheme
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
+lateinit var auth : FirebaseAuth
 @Composable
 fun LoginScreen(navController: NavHostController) {
-        var email = remember { mutableStateOf("") }
-        var password = remember { mutableStateOf("") }
-        var passwordVisible = remember { mutableStateOf(false) }
-        var context = LocalContext.current
-        var loading by remember { mutableStateOf(false) }
-        auth = Firebase.auth
-        Box(Modifier.fillMaxSize()) {
+    var email = remember { mutableStateOf("") }
+    var password = remember { mutableStateOf("") }
+    var passwordVisible = remember { mutableStateOf(false) }
+    var context = LocalContext.current
+    var loading by remember { mutableStateOf(false) }
+    auth = Firebase.auth
+    Box(Modifier.fillMaxSize()) {
 
-            Image(
-                painter = painterResource(R.drawable.bg),
-                contentDescription = "BackgroundImage",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxHeight()
-            )
+        Image(
+            painter = painterResource(R.drawable.bg),
+            contentDescription = "BackgroundImage",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxHeight()
+        )
 
-
+//
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -74,7 +74,7 @@ fun LoginScreen(navController: NavHostController) {
                     contentDescription = "AppLogo",
                     modifier = Modifier.size(200.dp)
                 )
-
+//
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
@@ -117,8 +117,6 @@ fun LoginScreen(navController: NavHostController) {
                     }
 
                 )
-
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Login Button
@@ -132,26 +130,17 @@ fun LoginScreen(navController: NavHostController) {
                                 auth.signInWithEmailAndPassword(email.value, password.value)
                                     .addOnCompleteListener {
                                         if (it.isSuccessful) {
-                                            val user = auth.currentUser?.uid
-                                            if (user != null) {
-                                                fetchUsername(
-                                                    uid = user,
-                                                    context = context
-                                                ) { name ->
-                                                    navController.navigate("pdfScreen"){
-                                                        popUpTo("login"){inclusive = true}
-                                                    }
-                                                }
-                                            }
-                                        } else {
                                             loading = false
-                                            Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
-                                                .show()
+                                            MainViewModel().login()
+                                            navController.navigate("home2")
                                         }
-
-
+                                    else
+                                    {
+                                    loading = false
+                                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
+                                        .show()
                                     }
-
+                            }
                             } catch (e: Exception) {
                                 loading = false
                                 Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
@@ -172,14 +161,14 @@ fun LoginScreen(navController: NavHostController) {
                     }
                 }
             }
-        }
+       }
+
     }
 
-
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    MyProjectAppTheme {
-        LoginScreen(rememberNavController())
-    }
+@Preview
+fun loginPreview(){
+    LoginScreen(rememberNavController())
 }
+
+

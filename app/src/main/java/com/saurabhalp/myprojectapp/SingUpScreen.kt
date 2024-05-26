@@ -108,7 +108,7 @@ fun Screen2(navController: NavHostController) {
 
                Button(onClick = {
                    loading=true
-                   auth = Firebase.auth
+                   var auth = MainViewModel().auth
                    try {
                        auth.createUserWithEmailAndPassword(email.value, password.value)
                            .addOnCompleteListener { task ->

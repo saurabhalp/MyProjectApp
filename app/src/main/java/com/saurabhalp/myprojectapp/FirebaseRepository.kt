@@ -1,5 +1,6 @@
 package com.saurabhalp.myprojectapp
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.LaunchedEffect
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -9,6 +10,7 @@ import kotlinx.coroutines.tasks.await
 
 
 class ItemRepository { private var db = Firebase.firestore
+ @SuppressLint("SuspiciousIndentation")
  fun fetchItems(id:String): List<PdfItem> {
         // Simulate network delay
     val items = mutableListOf<PdfItem>()

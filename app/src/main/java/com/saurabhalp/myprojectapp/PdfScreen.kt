@@ -100,7 +100,8 @@ fun App2(navController: NavController,id:String) {
                 .asPaddingValues()
                 .calculateEndPadding(layoutDirection),
         )){
-        NotesList(id)
+        NotesList(id,navController)
+
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,10 +109,26 @@ fun App2(navController: NavController,id:String) {
 fun subjectList(affirmationList : List<Subject>,navController: NavController,viewModel: MainViewModel) {
 
     Scaffold(
-        topBar = {
+        bottomBar= {
+            Row (Modifier.fillMaxWidth().background(Color.White)){
+                Button(onClick = {navController.navigate("home2")},
+                    Modifier.weight(1f)) { Text("Notes")
+                }
+                Button(onClick = {},
+                    Modifier.weight(1f)) { Text("LabFile")
+                }
+                Button(onClick = {},
+                    Modifier.weight(1f)) { Text("Notice")
+                }
+                Button(onClick = {navController.navigate("Profile")},
+                    Modifier.weight(1f)) { Text("12")
+                }}
+        },
+        topBar= {
             TopAppBar(title = { Text("Subject List") })
+        },
 
-        }
+
     )
     { contentPadding ->
         Column(
@@ -134,7 +151,7 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesList(id: String) { var db = Firebase.firestore
+fun NotesList(id: String,navController: NavController) { var db = Firebase.firestore
     var loading by remember { mutableStateOf( true)}
     var context = LocalContext.current
   var pdfItems  = remember { mutableStateListOf<NotesPdf>() }
@@ -153,6 +170,21 @@ fun NotesList(id: String) { var db = Firebase.firestore
         }
     }
         Scaffold(
+            bottomBar= {
+                Row (Modifier.fillMaxWidth().background(Color.White)){
+                    Button(onClick = {navController.navigate("home2")},
+                        Modifier.weight(1f)) { Text("Notes")
+                    }
+                    Button(onClick = {},
+                        Modifier.weight(1f)) { Text("LabFile")
+                    }
+                    Button(onClick = {},
+                        Modifier.weight(1f)) { Text("Notice")
+                    }
+                    Button(onClick = {navController.navigate("login")},
+                        Modifier.weight(1f)) { Text("12")
+                    }}
+            },
             topBar = {
                 TopAppBar(title = { Text("Notes") })
 
@@ -178,6 +210,11 @@ fun NotesList(id: String) { var db = Firebase.firestore
                             )
                         }
                     }
+
+                        TextButton(onClick = {MainViewModel().logout()
+                            navController.navigate("login")
+                        }
+                        ) { Text(text = "Logout") }
                 }
             }
         }

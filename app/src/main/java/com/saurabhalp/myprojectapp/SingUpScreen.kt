@@ -41,7 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 import com.saurabhalp.myprojectapp.ui.theme.MyProjectAppTheme
@@ -108,12 +110,12 @@ fun Screen2(navController: NavHostController) {
 
                Button(onClick = {
                    loading=true
-                   var auth = MainViewModel().auth
+
                    try {
-                       auth.createUserWithEmailAndPassword(email.value, password.value)
+                       FirebaseAuth.getInstance().createUserWithEmailAndPassword(email.value, password.value)
                            .addOnCompleteListener { task ->
                                if (task.isSuccessful) {
-                                   val user = auth.currentUser
+                                   val user = FirebaseAuth.getInstance().currentUser
                                    user?.let {
                                        val userMap = hashMapOf(
                                            "name" to name.value,
@@ -122,7 +124,7 @@ fun Screen2(navController: NavHostController) {
                                        )
 
                                        try {
-                                           db.collection("users").document(it.uid).set(userMap)
+                                           FirebaseFirestore.getInstance().collection("users").document(it.uid).set(userMap)
                                                .addOnSuccessListener {
                                                    Toast.makeText(
                                                        context,

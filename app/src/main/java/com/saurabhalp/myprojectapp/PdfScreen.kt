@@ -182,7 +182,9 @@ fun NotesList(id: String,navController: NavController) {
                 TextButton(onClick = {
                     FirebaseAuth.getInstance().signOut()
                     navController.navigate("login")
+                    navController.popBackStack("home2", inclusive = true)
                 }
+
                 ) { Text(text = "Logout") }
             }
         }
@@ -328,7 +330,6 @@ fun notePreview(){
 //            }
 //        }
 //}
-
 
 @Composable
 fun PdfItemView(pdf: NotesPdf) {

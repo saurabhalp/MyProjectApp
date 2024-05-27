@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,14 +16,19 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
     var isLoggedIn  = _isLoggedIn.value
+    private var _userId = MutableStateFlow("")
+    var userId = _userId.value
     private var _items = MutableStateFlow<List<PdfItem>>(emptyList())
     lateinit var auth: FirebaseAuth
     var tems: StateFlow<List<PdfItem>> = _items
     private var _clicked :String? = null
     var clicked = _clicked
+    var docRef =  Firebase.firestore
+
     fun login() {
             viewModelScope.launch {
                 // Simulate login process
+
                 _isLoggedIn.value = true
             }
         }

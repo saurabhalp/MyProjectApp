@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -86,8 +87,13 @@ fun fetchUsername(uid: String, context: Context, onResult: (String) -> Unit) {
 }
 @Composable
 fun Greeting(name: String) {
-        Surface(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-            Box (Modifier.fillMaxSize().background(color = Color.Gray)){
+        Surface(modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()) {
+            Box (
+                Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Gray)){
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier
@@ -114,22 +120,45 @@ fun previewHome(){
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.padding(bottom = 16.dp),
         bottomBar = {
-                Row (Modifier.fillMaxWidth().background(Color.White)){
-                    Button(onClick = {navController.navigate("home2")},
-                        Modifier.weight(1f).padding(3.dp)) { Text("Notes", )
+                Row (
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)){
+                    Button(onClick = {
+                        if(FirebaseAuth.getInstance().currentUser!=null){
+                            navController.popBackStack()
+                        navController.navigate("home2")
+                        }
+                        else{
+                            Toast.makeText(context, "Login First", Toast.LENGTH_SHORT).show()
+                            }},
+
+                            Modifier
+                                .weight(1f)
+                                .padding(3.dp)) { Text("Notes", )
                     }
                     Button(onClick = { },
-                        Modifier.weight(1f).padding(3.dp)) { Text("LabFile",maxLines = 1)
+                        Modifier
+                            .weight(1f)
+                            .padding(3.dp)) { Text("LabFile",maxLines = 1)
                     }
                     Button(onClick = {},
-                        Modifier.weight(1f).padding(3.dp)) { Text("Notice")
+                        Modifier
+                            .weight(1f)
+                            .padding(3.dp)) { Text("Notice")
                     }
-                    Button(onClick = {},
-                        Modifier.weight(1f).padding(3.dp)) { Text("Profile")
+                    Button(onClick = { navController.popBackStack()
+                        navController.navigate("profile")
+
+                                     },
+                        Modifier
+                            .weight(1f)
+                            .padding(3.dp)) { Text("Profile")
                     }}
 
         }
@@ -139,9 +168,10 @@ fun MainScreen(viewModel: MainViewModel) {
                 if (FirebaseAuth.getInstance().currentUser != null) "home2" else
                     "login"
             ) {
-                composable("login") { LoginScreen(navController) }
+                composable("login") { LoginScreen(navController,viewModel) }
                 composable("signup") { Screen2(navController) }
                 composable("home2") { App(navController) }
+                composable("profile") { ProfileScreen() }
                 composable("App2/{detailText}") { backStackEntry ->
                     val detailText = backStackEntry.arguments?.getString("detailText") ?: ""
                     App2(navController, detailText)

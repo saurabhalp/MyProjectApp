@@ -48,6 +48,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -55,7 +56,7 @@ import com.google.firebase.ktx.Firebase
 
 lateinit var auth : FirebaseAuth
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
     var email = remember { mutableStateOf("") }
     var password = remember { mutableStateOf("") }
     var passwordVisible = remember { mutableStateOf(false) }
@@ -145,6 +146,7 @@ fun LoginScreen(navController: NavHostController) {
                                             loading = false
                                             MainViewModel().login()
                                             navController.navigate("home2")
+                                            navController.popBackStack("login", inclusive = true)
                                         } else {
                                             loading = false
                                             Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
@@ -179,7 +181,7 @@ fun LoginScreen(navController: NavHostController) {
 @Composable
 @Preview
 fun loginPreview(){
-    LoginScreen(rememberNavController())
+    LoginScreen(rememberNavController(),MainViewModel())
 }
 
 

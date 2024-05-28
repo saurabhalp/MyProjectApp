@@ -39,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(){
+    //todo : add option to update profile picture through firebase
     val context = LocalContext.current
     var email = remember { mutableStateOf("") }
     var name = remember { mutableStateOf("") }

@@ -10,4 +10,4 @@ data class Subject(
 data class PdfItem(
     var name: String,
     var url: String
-){}
+)

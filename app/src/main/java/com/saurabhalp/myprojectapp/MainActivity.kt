@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyProjectAppTheme {
-
                 MainScreen(MainViewModel())
             }
         }

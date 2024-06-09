@@ -1,12 +1,15 @@
 package com.saurabhalp.myprojectapp
 
+import UploadPdfScreen
 import android.util.Log
 import android.view.RoundedCorner
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -72,19 +75,35 @@ fun ProfileScreen(){
         }
     ) {
 
-        Column(Modifier.fillMaxSize().padding(it)) {
-            Row(Modifier.fillMaxWidth().padding(8.dp).height(100.dp)) {
-                Box(Modifier.padding(8.dp).weight(1f)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(it), horizontalAlignment = Alignment.CenterHorizontally,
+           ) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .height(100.dp)) {
+                Box(
+                    Modifier
+                        .padding(8.dp)
+                        .weight(1f)) {
                     Image(
                         painter = painterResource(R.drawable.profile),
                         contentDescription = "Profile",
                         contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.height(100.dp)
-                            .padding(8.dp).clip(RoundedCornerShape(50))
+                        modifier = Modifier
+                            .height(100.dp)
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(50))
                     )
                 }
 
-                Column(Modifier.weight(2f).align(Alignment.CenterVertically)) {
+                Column(
+                    Modifier
+                        .weight(2f)
+                        .align(Alignment.CenterVertically)) {
                     Text(
                         name.value,
                         color = Color.White,
@@ -96,14 +115,20 @@ fun ProfileScreen(){
                         text = email.value,
                         color = Color.White
                     )
+                    
+                    Spacer(modifier = Modifier.height(20.dp))
+                    
                 }
 
 
             }
-
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            UploadPdfScreen()
+            Spacer(modifier = Modifier.height(32.dp))
             TextButton(onClick = {
                 FirebaseAuth.getInstance().signOut()
-            }, Modifier.align(Alignment.CenterHorizontally)) {
+            },) {
                 Text("Logout")
             }
 

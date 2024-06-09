@@ -113,8 +113,6 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
         topBar= {
             TopAppBar(title = { Text("Subject List") })
         },
-
-
     )
     { contentPadding ->
         Column(
@@ -124,10 +122,10 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
                 .padding(8.dp)) {
             LazyColumn {
                 items(affirmationList) { affirmation ->
-                    var id = affirmation.nameId
+                    var id = affirmation.id
                     SubjectCard(
                         subject = affirmation,
-                        onClick = {viewModel.getItems(id.toString())},
+                        onClick = {},
                       navController)
                 }
             }
@@ -137,14 +135,22 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesList(id: String,navController: NavController) {
+fun NotesList(id: String, navController: NavController) {
     var db = Firebase.firestore
+    var p:String
     var loading by remember { mutableStateOf(true) }
     var context = LocalContext.current
     var pdfItems = remember { mutableStateListOf<NotesPdf>() }
     LaunchedEffect(Unit) {
         try {
-            val documents = db.collection("pdfs").document("fdsa").collection("pdf1").get().await()
+            if(id.toInt()!=5){
+                p = "pdfs"
+
+            }
+            else{
+                p=id
+            }
+            val documents = db.collection(p).document("fdsa").collection("pdf1").get().await()
             for (document in documents) {
                 val name = document.getString("name") ?: "Not Found"
                 val url = document.getString("url") ?: "Url Not Accessible"
@@ -212,7 +218,7 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
 
                 )
                 TextButton(onClick={
-                    navController.navigate("App2/2")
+                    navController.navigate("App2/${subject.id}")
                 },Modifier.weight(1f).align(Alignment.CenterVertically)
                    ) {
                     Text( text = "Open",

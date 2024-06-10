@@ -110,11 +110,6 @@ fun Greeting(name: String) {
         }
     }
 
-@Preview
-@Composable
-fun previewHome(){
-    Greeting("Saurabh")
-}
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(viewModel: MainViewModel) {

@@ -1,11 +1,9 @@
 package com.saurabhalp.myprojectapp
 
-import UploadPdfScreen
 import android.util.Log
-import android.view.RoundedCorner
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,8 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,19 +41,21 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(){
+fun ProfileScreen() {
     //todo : add option to update profile picture through firebase
     val context = LocalContext.current
     var email = remember { mutableStateOf("") }
     var name = remember { mutableStateOf("") }
     var db = FirebaseAuth.getInstance().currentUser
-    if(db!=null){
-    email.value = db.email.toString()
-    }
-    else{
+    var emailVerified by remember { mutableStateOf(true) }
+
+    if (db != null) {
+        email.value = db.email.toString()
+        emailVerified = db.isEmailVerified
+    } else {
         name.value = "Error Getting Email"
     }
-        var docRef = db?.let { FirebaseFirestore.getInstance().collection("users").document(it.uid) }
+    var docRef = db?.let { FirebaseFirestore.getInstance().collection("users").document(it.uid) }
     if (docRef != null) {
         docRef.get()
             .addOnSuccessListener { document ->
@@ -78,17 +80,20 @@ fun ProfileScreen(){
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(it), horizontalAlignment = Alignment.CenterHorizontally,
-           ) {
+                .padding(it),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Row(
                 Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .height(100.dp)) {
+                    .height(100.dp)
+            ) {
                 Box(
                     Modifier
                         .padding(8.dp)
-                        .weight(1f)) {
+                        .weight(1f)
+                ) {
                     Image(
                         painter = painterResource(R.drawable.profile),
                         contentDescription = "Profile",
@@ -99,40 +104,56 @@ fun ProfileScreen(){
                             .clip(RoundedCornerShape(50))
                     )
                 }
-
                 Column(
                     Modifier
                         .weight(2f)
-                        .align(Alignment.CenterVertically)) {
+                        .align(Alignment.CenterVertically)
+                ) {
                     Text(
                         name.value,
-                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
 
                     Text(
                         text = email.value,
-                        color = Color.White
                     )
-                    
                     Spacer(modifier = Modifier.height(20.dp))
-                    
                 }
-
-
             }
-            
             Spacer(modifier = Modifier.height(20.dp))
-            UploadPdfScreen()
-            Spacer(modifier = Modifier.height(32.dp))
-            TextButton(onClick = {
-                FirebaseAuth.getInstance().signOut()
-            },) {
-                Text("Logout")
+
+            if (db != null) {
+                db.reload()
+                if (!db.isEmailVerified) {
+                    Toast.makeText(context, "Email is not verified", Toast.LENGTH_SHORT).show()
+                    Button(
+                        onClick = { 
+                            FirebaseAuth.getInstance().currentUser?.sendEmailVerification()
+                                ?.addOnSuccessListener {
+                                    Toast.makeText(context, "Email Sent", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    ) {
+                        Text(text = "Verify Email")
+
+                    }
+                }
+                else{
+                    Toast.makeText(context, "Email is Verified", Toast.LENGTH_SHORT).show()
+                }
+                if (db?.email.toString() == "saurabhk.nitp@gmail.com" || db.isEmailVerified) {
+                    UploadPdfScreen()
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+                TextButton(
+                    onClick = {
+                        FirebaseAuth.getInstance().signOut()
+                    },
+                ) {
+                    Text("Logout")
+                }
             }
-
-
         }
     }
 }

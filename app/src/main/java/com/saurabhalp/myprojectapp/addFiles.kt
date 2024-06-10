@@ -1,18 +1,31 @@
+package com.saurabhalp.myprojectapp
+
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -20,8 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
@@ -34,6 +49,10 @@ fun UploadPdfScreen() {
     var name by remember {
         mutableStateOf("")
     }
+    var subNumber by remember {
+        mutableStateOf("Select Subject")
+    }
+    var expanded by remember { mutableStateOf(false) }
     var url by remember {
         mutableStateOf("")
     }
@@ -56,20 +75,75 @@ fun UploadPdfScreen() {
 
             OutlinedTextField(value = name,
                 onValueChange = { name = it },
-                label ={ Text(text = "Title")})
+                label = { Text(text = "Title") })
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).padding(start = 20.dp,end =20.dp)) {
+                Text(
+                    text = subNumber.toString(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = true }
+                        .background(MaterialTheme.colorScheme.surface)
+                        ,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    (1..5).forEach { number ->
+                        DropdownMenuItem(
+                            onClick = {
+                                subNumber = number.toString()
+                                expanded = false
+                            },
+                            text = { Text(number.toString()) }
+                        )
+
+                    }
+                }
+            }
+        }
 
             Spacer(modifier = Modifier.height(16.dp))
             var filechoosed by remember {
                 mutableStateOf(false) }
+
+            if(filePath==null)
+                filechoosed = false
+            else{
+                filechoosed = true
+            }
+
             if(!filechoosed) {
                 Button(onClick = { pdfPickerLauncher.launch("application/pdf")
-                    if(filePath!=null)
-                      filechoosed = true
                 }) {
                     Text(text = "Choose PDF")
                 }
             }else{
-                filePath?.lastPathSegment?.let { Text(text = it) }
+                Row(horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
+//                    Text(text = "heel/dc",Modifier.weight(3f).padding(start = 20.dp), overflow = TextOverflow.Clip, maxLines = 1
+//                    )
+                    filePath?.path?.let {
+                        Text(
+                            text = it,
+                            Modifier
+                                .weight(3f)
+                                .padding(start = 20.dp),
+                            overflow = TextOverflow.Clip
+                        )
+                        IconButton(onClick = { pdfPickerLauncher.launch("application/pdf") }) {
+                            Icon(
+                                painter = painterResource(R.drawable.edbutton),
+                                contentDescription = null,
+                                Modifier
+                                    .padding(10.dp)
+                                    .height(24.dp)
+                            )
+                        }
+                    }
+                }
             }
 
 
@@ -86,7 +160,10 @@ fun UploadPdfScreen() {
 
                         url = Arli
                         loading = false
-                        addFilesViewModel(Files(name, url, "5"), context = context)
+                        addFilesViewModel(Files(name, url, subNumber), context = context)
+                        name = ""
+                        filePath = null
+                        subNumber = "Select Subject"
                     }
 
 
@@ -102,7 +179,7 @@ fun UploadPdfScreen() {
             }
         }
     }
-}
+
 
 private fun uploadPdf(filePath: Uri, onUrlReady: (String) -> Unit){
     val storage = FirebaseStorage.getInstance()
@@ -122,7 +199,7 @@ private fun uploadPdf(filePath: Uri, onUrlReady: (String) -> Unit){
         }
 }
 @SuppressLint("SuspiciousIndentation")
-fun addFilesViewModel(data : Files,context: Context) {
+fun addFilesViewModel(data : Files, context: Context) {
     val db = Firebase.firestore
     val notes = hashMapOf(
         "name" to data.title,
@@ -130,7 +207,7 @@ fun addFilesViewModel(data : Files,context: Context) {
     )
         db.collection(data.subject).document("fdsa").collection("pdf1").add(notes)
             .addOnSuccessListener {
-                Log.d("Uppload","uploaded with id ${it.id}")
+                Log.d("Upload","uploaded with id ${it.id}")
                 Toast.makeText(context, "Uploaded", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->

@@ -77,14 +77,16 @@ fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .padding(16.dp).fillMaxSize()
+                    .padding(16.dp)
+                    .fillMaxSize()
 
             ) {
 
                 Image(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    painter = painterResource(R.drawable.ic_launcher),
                     contentDescription = "AppLogo",
                     modifier = Modifier.size(200.dp)
+
                 )
 //
                 Spacer(modifier = Modifier.height(8.dp))
@@ -146,6 +148,7 @@ fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
                                             loading = false
                                             MainViewModel().login()
                                             navController.navigate("home2")
+
                                             navController.popBackStack("login", inclusive = true)
                                         } else {
                                             loading = false
@@ -172,7 +175,7 @@ fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
                     TextButton(onClick = { navController.navigate("signup") }) {
                         Text("Don't have an account? Sign up", color = Color.Blue)
                     }
-                }
+              }
             }
        }
 

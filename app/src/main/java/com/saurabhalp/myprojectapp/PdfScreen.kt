@@ -3,6 +3,7 @@ package com.saurabhalp.myprojectapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,6 +70,10 @@ import com.saurabhalp.myprojectapp.data.DataSource
 import com.saurabhalp.myprojectapp.ItemRepository
 import kotlinx.coroutines.tasks.await
 import com.saurabhalp.myprojectapp.Subject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -132,25 +138,49 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
         }
     }
 }
+    fun deleteNoteFromFirestore(
+        collection: String,
+        note: NotesPdf,
+        pdfItems: SnapshotStateList<NotesPdf>
+    ) {
+        val db = Firebase.firestore
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val querySnapshot = db.collection(collection)
+                    .document("fdsa")
+                    .collection("pdf1")
+                    .whereEqualTo("name", note.name)
+                    .whereEqualTo("url", note.url)
+                    .get()
+                    .await()
+                for (document in querySnapshot.documents) {
+                    db.collection(collection)
+                        .document("fdsa")
+                        .collection("pdf1")
+                        .document(document.id)
+                        .delete()
+                        .await()
+                }
+                withContext(Dispatchers.Main) {
+                    pdfItems.remove(note)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                }
+            }
+        }
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesList(id: String, navController: NavController) {
     var db = Firebase.firestore
-    var p:String
     var loading by remember { mutableStateOf(true) }
     var context = LocalContext.current
     var pdfItems = remember { mutableStateListOf<NotesPdf>() }
     LaunchedEffect(Unit) {
         try {
-            if(id.toInt()!=5){
-                p = "pdfs"
-
-            }
-            else{
-                p=id
-            }
-            val documents = db.collection(p).document("fdsa").collection("pdf1").get().await()
+            val documents = db.collection(id).document("fdsa").collection("pdf1").get().await()
             for (document in documents) {
                 val name = document.getString("name") ?: "Not Found"
                 val url = document.getString("url") ?: "Url Not Accessible"
@@ -171,7 +201,8 @@ fun NotesList(id: String, navController: NavController) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxSize().padding(it)
+                .fillMaxSize()
+                .padding(it)
                 .padding(8.dp)
         ) {
             if (loading) {
@@ -180,7 +211,7 @@ fun NotesList(id: String, navController: NavController) {
                 LazyColumn {
                     items(pdfItems) { itt ->
                         NotesCard(
-                            PdfItem(itt.name, itt.url),
+                            PdfItem(itt.name, itt.url), onDelete = {deleteNoteFromFirestore(id,itt,pdfItems)}
                         )
                     }
                 }
@@ -201,16 +232,20 @@ fun NotesList(id: String, navController: NavController) {
 @Composable
 fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController ){
     Card (modifier = Modifier
-        .fillMaxWidth().height(100.dp)
+        .fillMaxWidth()
+        .height(100.dp)
         .padding(8.dp)
         .clickable(onClick = { onClick() }
 
         )){ Box (Modifier.fillMaxSize()){
 
-      Row (modifier = Modifier.fillMaxSize().align(Alignment.Center) ){
+      Row (modifier = Modifier
+          .fillMaxSize()
+          .align(Alignment.Center) ){
                 Text(
                     text = LocalContext.current.getString(subject.nameId),
-                    Modifier.weight(2f)
+                    Modifier
+                        .weight(2f)
                         .align(Alignment.CenterVertically)
                         .padding(start = 20.dp),
                     fontSize = 24.sp,
@@ -219,7 +254,10 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
                 )
                 TextButton(onClick={
                     navController.navigate("App2/${subject.id}")
-                },Modifier.weight(1f).align(Alignment.CenterVertically)
+                },
+                    Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically)
                    ) {
                     Text( text = "Open",
                         fontWeight = FontWeight.Bold,
@@ -232,19 +270,23 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
     }
 }
 @Composable
-fun NotesCard(subject:PdfItem){
+fun NotesCard(subject:PdfItem,onDelete:()->Unit){
     val context = LocalContext.current
     Card (modifier = Modifier
-        .fillMaxWidth().height(100.dp)
+        .fillMaxWidth()
+        .height(100.dp)
         .padding(8.dp)
     ){
             Box(Modifier.fillMaxSize()) {
                 Row(
-                    modifier = Modifier.fillMaxSize().align(Alignment.Center),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.Center),
                 ) {
                     Text(
                         text = subject.name,
-                        Modifier.weight(2f)
+                        Modifier
+                            .weight(2f)
                             .align(Alignment.CenterVertically)
                             .padding(start = 20.dp),
                         fontSize = 24.sp,
@@ -252,7 +294,9 @@ fun NotesCard(subject:PdfItem){
                     )
                     ClickableText(
                         text = AnnotatedString("Open PDF"),
-                        Modifier.weight(1f).align(Alignment.CenterVertically),
+                        Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically),
                         onClick = {
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 setDataAndType(Uri.parse(subject.url), "application/pdf")
@@ -261,17 +305,24 @@ fun NotesCard(subject:PdfItem){
                             context.startActivity(intent)
                         }
                     )
+                    if (FirebaseAuth.getInstance().currentUser?.isEmailVerified == true || FirebaseAuth.getInstance().currentUser?.email == "saurabhk.nitp@gmail.com") {
+                        Button(onClick = onDelete, Modifier.align(Alignment.CenterVertically).padding(10.dp)) {
+                            Text(text = "Delete")
+                        }
+
+                    }
+                }
 
 
                 }
             }
         }
-}
+
 
 @Preview
 @Composable
 fun notePreview(){
-    NotesCard(PdfItem("Name","url"))
+    NotesCard(PdfItem("Name","url"),{})
 }
 
 

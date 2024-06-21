@@ -3,10 +3,9 @@ package com.saurabhalp.myprojectapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,39 +36,32 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.saurabhalp.myprojectapp.data.DataSource
-import com.saurabhalp.myprojectapp.ItemRepository
 import kotlinx.coroutines.tasks.await
-import com.saurabhalp.myprojectapp.Subject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -90,7 +82,7 @@ fun App(navController: NavController) {
                 .asPaddingValues()
                 .calculateEndPadding(layoutDirection),
         )){
-        subjectList(affirmationList = DataSource().loadSubjects(), navController, viewModel = MainViewModel())
+        SubjectList(affirmationList = DataSource().loadSubjects(), navController)
     }
 }
 @Composable
@@ -113,11 +105,13 @@ fun App2(navController: NavController,id:String) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun subjectList(affirmationList : List<Subject>,navController: NavController,viewModel: MainViewModel) {
+fun SubjectList(affirmationList : List<Subject>, navController: NavController) {
 
     Scaffold(
+        Modifier.background(Color(0xfff1f9fe)),
         topBar= {
-            TopAppBar(title = { Text("Subject List") })
+            TopAppBar(title = { Text("Subject List", fontWeight = FontWeight.Bold) }, colors =
+                    TopAppBarColors(Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xff0d2c3f),Color(0xfff1f9fe)))
         },
     )
     { contentPadding ->
@@ -125,8 +119,8 @@ fun subjectList(affirmationList : List<Subject>,navController: NavController,vie
             Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                .padding(8.dp)) {
-            LazyColumn {
+                .background(Color(0xfff1f9fe))) {
+            LazyColumn(Modifier.padding(10.dp)) {
                 items(affirmationList) { affirmation ->
                     var id = affirmation.id
                     SubjectCard(
@@ -195,7 +189,9 @@ fun NotesList(id: String, navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Units") })
+            TopAppBar(title = { Text("Units",Modifier.padding(start = 20.dp)
+            , fontWeight = FontWeight.Bold)}, colors =
+            TopAppBarColors(Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xff0d2c3f),Color(0xfff1f9fe),))
         }
     ) {
         Column(
@@ -203,12 +199,12 @@ fun NotesList(id: String, navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .padding(8.dp)
+                .background(Color(0xfff1f9fe))
         ) {
             if (loading) {
                 CircularProgressIndicator()
             } else {
-                LazyColumn {
+                LazyColumn (Modifier.padding(10.dp)){
                     items(pdfItems) { itt ->
                         NotesCard(
                             PdfItem(itt.name, itt.url), onDelete = {deleteNoteFromFirestore(id,itt,pdfItems)}
@@ -216,13 +212,6 @@ fun NotesList(id: String, navController: NavController) {
                     }
                 }
 
-                TextButton(onClick = {
-                    FirebaseAuth.getInstance().signOut()
-                    navController.navigate("login")
-                    navController.popBackStack("home2", inclusive = true)
-                }
-
-                ) { Text(text = "Logout") }
             }
         }
     }
@@ -237,7 +226,7 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
         .padding(8.dp)
         .clickable(onClick = { onClick() }
 
-        )){ Box (Modifier.fillMaxSize()){
+        )){ Box (Modifier.fillMaxSize().background(Color(0xFFC0E5F7))){
 
       Row (modifier = Modifier
           .fillMaxSize()
@@ -249,7 +238,8 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
                         .align(Alignment.CenterVertically)
                         .padding(start = 20.dp),
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0D2C3F)
 
                 )
                 TextButton(onClick={
@@ -261,7 +251,8 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
                    ) {
                     Text( text = "Open",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
+                        fontSize = 24.sp,
+                        color = Color(0xFF0D2C3F)
                     )
                 }
 
@@ -277,7 +268,7 @@ fun NotesCard(subject:PdfItem,onDelete:()->Unit){
         .height(100.dp)
         .padding(8.dp)
     ){
-            Box(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxSize().background(Color(0xFFC0E5F7))) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -290,10 +281,12 @@ fun NotesCard(subject:PdfItem,onDelete:()->Unit){
                             .align(Alignment.CenterVertically)
                             .padding(start = 20.dp),
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0D2C3F)
                     )
                     ClickableText(
                         text = AnnotatedString("Open PDF"),
+
                         Modifier
                             .weight(1f)
                             .align(Alignment.CenterVertically),
@@ -306,7 +299,10 @@ fun NotesCard(subject:PdfItem,onDelete:()->Unit){
                         }
                     )
                     if (FirebaseAuth.getInstance().currentUser?.isEmailVerified == true || FirebaseAuth.getInstance().currentUser?.email == "saurabhk.nitp@gmail.com") {
-                        Button(onClick = onDelete, Modifier.align(Alignment.CenterVertically).padding(10.dp)) {
+                        Button(onClick = onDelete,
+                            Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(10.dp)) {
                             Text(text = "Delete")
                         }
 
@@ -319,109 +315,11 @@ fun NotesCard(subject:PdfItem,onDelete:()->Unit){
         }
 
 
+@SuppressLint("ResourceType")
 @Preview
 @Composable
 fun notePreview(){
-    NotesCard(PdfItem("Name","url"),{})
+    SubjectCard(subject = Subject(2,""), onClick = { /*TODO*/ }, navController = rememberNavController() )
 }
-
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun PdfListScreen(navController: NavHostController) {
-//    val pdfItems = remember { mutableStateListOf<NotesPdf>() }
-//    val db = Firebase.firestore
-//    val context = LocalContext.current
-//
-//    LaunchedEffect(Unit) {
-//
-//        try {
-//            val documents = db.collection("pdfs").document("fdsa").collection("pdf1").get().await()
-//            for (document in documents) {
-//                val name = document.getString("name") ?: "Not Found"
-//                val url = document.getString("url") ?: "Url Not Accessible"
-//                pdfItems.add(NotesPdf(name, url))
-//            }
-//        } catch (e: Exception) {
-//            // Handle exceptions
-//            Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-//
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(title = { Text("PDF List") })
-//        }
-//    ) {contentPadding->
-//            Column(modifier = Modifier
-//                .padding(contentPadding)
-//                .padding(16.dp)) {
-//                PdfItemView(NotesPdf("Check", "No Url"))
-//                pdfItems.forEach { pdf ->
-//                    PdfItemView(pdf)
-//                    Spacer(modifier = Modifier.height(8.dp))
-//                }
-//
-//                TextButton(onClick = { navController.navigate("login") })
-//
-//                {
-//                    Text(
-//                        text = "GO Back"
-//                    )
-//                }
-//
-//                TextButton(onClick = {
-//                    try{
-//                    auth.signOut()
-//                    }
-//                    catch (e:Exception){
-//                        Toast.makeText(context,"${e.message}", Toast.LENGTH_SHORT).show()
-//                    }
-//                }) {
-//                    Text(
-//                        text = "Logout",
-//                        color = Color.Blue,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                }
-//            }
-//        }
-//}
-
-@Composable
-fun PdfItemView(pdf: NotesPdf) {
-    val context = LocalContext.current
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement =Arrangement.Center,
-        modifier = Modifier.padding(16.dp)){
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = pdf.name, style = MaterialTheme.typography.titleLarge, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            ClickableText(
-                text = AnnotatedString("Open PDF"),
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(Uri.parse(pdf.url), "application/pdf")
-                        flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-                    }
-                    context.startActivity(intent)
-                }
-            )
-        }
-    }
-    }
-}
-
-
 
 

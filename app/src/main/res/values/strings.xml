@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">MyProjectApp</string>
-    <string name="Subject1">Subject1</string>
-    <string name="Subject2">Subject2</string>
-    <string name="Subject3">Subject3</string>
-    <string name="Subject4">Subject4</string>
-    <string name="Subject5">Subject5</string>
-    <string name="Subject6">Subject6</string>
+    <string name="Subject1">Electromagnetic Field and Theory</string>
+    <string name="Subject2">Object Oriented Programming</string>
+    <string name="Subject3">Microprocessor and Controller</string>
+    <string name="Subject4">Report Writing</string>
+    <string name="Subject5">Digital Signal Processing</string>
+    <string name="Subject6">Additional</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -11,3 +11,13 @@ data class PdfItem(
     var name: String,
     var url: String
 )
+data class NotesPdf(
+    var name: String,
+    var url : String
+)
+data class Update(
+    val title: String,
+    var message: String,
+    var date : String
+
+)

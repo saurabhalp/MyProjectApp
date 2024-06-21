@@ -120,7 +120,8 @@ fun Screen2(navController: NavHostController) {
                                        val userMap = hashMapOf(
                                            "name" to name.value,
                                            "email" to email.value,
-                                           "password" to password.value
+                                           "password" to password.value,
+                                           "userType" to "0"
                                        )
 
                                        try {

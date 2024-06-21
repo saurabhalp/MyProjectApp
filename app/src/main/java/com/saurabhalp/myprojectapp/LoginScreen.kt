@@ -56,7 +56,7 @@ import com.google.firebase.ktx.Firebase
 
 lateinit var auth : FirebaseAuth
 @Composable
-fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
+fun LoginScreen(navController: NavHostController) {
     var email = remember { mutableStateOf("") }
     var password = remember { mutableStateOf("") }
     var passwordVisible = remember { mutableStateOf(false) }
@@ -146,10 +146,10 @@ fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
                                     .addOnCompleteListener {
                                         if (it.isSuccessful) {
                                             loading = false
-                                            MainViewModel().login()
+                                            navController.popBackStack("login", inclusive = true)
                                             navController.navigate("home2")
 
-                                            navController.popBackStack("login", inclusive = true)
+
                                         } else {
                                             loading = false
                                             Toast.makeText(context, "Error", Toast.LENGTH_SHORT)
@@ -184,7 +184,7 @@ fun LoginScreen(navController: NavHostController,viewModel: MainViewModel) {
 @Composable
 @Preview
 fun loginPreview(){
-    LoginScreen(rememberNavController(),MainViewModel())
+    LoginScreen(rememberNavController())
 }
 
 

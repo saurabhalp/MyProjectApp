@@ -5,13 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -27,10 +24,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,9 +46,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -70,17 +68,16 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun App(navController: NavController) {
-    val layoutDirection = LocalLayoutDirection.current
     Surface (modifier = Modifier
         .fillMaxSize()
         .statusBarsPadding()
         .padding(
             start = WindowInsets.safeDrawing
                 .asPaddingValues()
-                .calculateStartPadding(layoutDirection),
+                .calculateStartPadding(LayoutDirection.Ltr),
             end = WindowInsets.safeDrawing
                 .asPaddingValues()
-                .calculateEndPadding(layoutDirection),
+                .calculateEndPadding(LayoutDirection.Ltr),
         )){
         SubjectList(affirmationList = DataSource().loadSubjects(), navController)
     }
@@ -94,25 +91,24 @@ fun App2(navController: NavController,id:String) {
         .padding(
             start = WindowInsets.safeDrawing
                 .asPaddingValues()
-                .calculateStartPadding(layoutDirection),
+                .calculateStartPadding(LayoutDirection.Ltr),
             end = WindowInsets.safeDrawing
                 .asPaddingValues()
-                .calculateEndPadding(layoutDirection),
+                .calculateEndPadding(LayoutDirection.Ltr),
         )){
         NotesList(id,navController)
 
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectList(affirmationList : List<Subject>, navController: NavController) {
 
     Scaffold(
         Modifier.background(Color(0xfff1f9fe)),
-        topBar= {
-            TopAppBar(title = { Text("Subject List", fontWeight = FontWeight.Bold) }, colors =
-                    TopAppBarColors(Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xff0d2c3f),Color(0xfff1f9fe)))
-        },
+        {Topbar(title = "Subject")}
+
     )
     { contentPadding ->
         Column(
@@ -165,13 +161,13 @@ fun SubjectList(affirmationList : List<Subject>, navController: NavController) {
         }
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun NotesList(id: String, navController: NavController) {
-    var db = Firebase.firestore
+    val db = Firebase.firestore
     var loading by remember { mutableStateOf(true) }
-    var context = LocalContext.current
-    var pdfItems = remember { mutableStateListOf<NotesPdf>() }
+    val context = LocalContext.current
+    val pdfItems = remember { mutableStateListOf<NotesPdf>() }
     LaunchedEffect(Unit) {
         try {
             val documents = db.collection(id).document("fdsa").collection("pdf1").get().await()
@@ -188,11 +184,8 @@ fun NotesList(id: String, navController: NavController) {
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Units",Modifier.padding(start = 20.dp)
-            , fontWeight = FontWeight.Bold)}, colors =
-            TopAppBarColors(Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xff0d2c3f),Color(0xfff1f9fe),))
-        }
+        Modifier.background(Color(0xfff1f9fe)),
+        {Topbar(title = "Units")},
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -226,7 +219,10 @@ fun SubjectCard(subject: Subject,onClick:()->Unit,navController: NavController )
         .padding(8.dp)
         .clickable(onClick = { onClick() }
 
-        )){ Box (Modifier.fillMaxSize().background(Color(0xFFC0E5F7))){
+        )){ Box (
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xFFC0E5F7))){
 
       Row (modifier = Modifier
           .fillMaxSize()
@@ -268,7 +264,10 @@ fun NotesCard(subject:PdfItem,onDelete:()->Unit){
         .height(100.dp)
         .padding(8.dp)
     ){
-            Box(Modifier.fillMaxSize().background(Color(0xFFC0E5F7))) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFC0E5F7))) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()

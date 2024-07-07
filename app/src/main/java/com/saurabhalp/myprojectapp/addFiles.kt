@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,9 +66,6 @@ fun UploadPdfScreen() {
     var loading by remember { mutableStateOf(false) }
     var filechoosed by remember { mutableStateOf(false) }
     var isAlert by remember { mutableStateOf(false) }
-
-    if(filePath==null) filechoosed = false
-    else filechoosed = true
     val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -101,8 +99,11 @@ if(isAlert) {
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
-                    label = { Text(text = "Title") })
+                    onValueChange = { (name) = it},
+                    label = { Text(text = "Title",color = Color(0xFF0D2C3F)) },
+                    shape = RectangleShape,
+                    textStyle = TextStyle(color = Color(0xFF0D2C3F))
+                   )
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Box(
@@ -114,11 +115,13 @@ if(isAlert) {
                             .fillMaxWidth()
                             .clickable { expanded = true }
                             .padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF0D2C3F),
                     )
                     DropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onDismissRequest = { expanded = false },
+                        Modifier.background(Color(0xFFC0E5F7))
                     ) {
                         (1..5).forEach { number ->
                             DropdownMenuItem(
@@ -126,7 +129,8 @@ if(isAlert) {
                                     subNumber = number.toString()
                                     expanded = false
                                 },
-                                text = { Text(number.toString()) }
+                                text = { Text(number.toString(), color = Color(0xFF0D2C3F))
+                              }
                             )
                         }
                     }
@@ -136,13 +140,14 @@ if(isAlert) {
                 }
                 if (!filechoosed) {
                     Text(text = path,
+
                         Modifier
                             .padding(20.dp)
                             .clickable {
                                 pdfPickerLauncher.launch("application/pdf")
-                            })
-                } else {
-                    path = filePath?.lastPathSegment.toString()
+                                path = filePath?.lastPathSegment.toString()
+                            },
+                        color = Color(0xFF0D2C3F),)
                 }
                 Button(onClick = {
                     if(filePath!=null && name!= null) {
@@ -166,105 +171,11 @@ if(isAlert) {
                 }) {
                     Text(text = "Upload PDF")
                 }
-
-
             }
         }
-
-
     }
-}
+} }
 
-//            OutlinedTextField(value = name,
-//                onValueChange = { name = it },
-//                label = { Text(text = "Title") })
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Box(modifier = Modifier
-//                .fillMaxWidth()
-//                .align(Alignment.CenterHorizontally)
-//                .padding(start = 20.dp, end = 20.dp)) {
-//                Text(
-//                    text = subNumber.toString(),
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clickable { expanded = true }
-//                        .background(MaterialTheme.colorScheme.surface)
-//                        ,
-//                    style = MaterialTheme.typography.bodyMedium
-//                )
-//                DropdownMenu(
-//                    expanded = expanded,
-//                    onDismissRequest = { expanded = false }
-//                ) {
-//                    (1..5).forEach { number ->
-//                        DropdownMenuItem(
-//                            onClick = {
-//                                subNumber = number.toString()
-//                                expanded = false
-//                            },
-//                            text = { Text(number.toString()) }
-//                        )
-//
-//                    }
-//                }
-//            }
-//        }
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            if(!filechoosed) {
-//                Button(onClick = { pdfPickerLauncher.launch("application/pdf")
-//                }) {
-//                    Text(text = "Choose PDF")
-//                }
-//            }else{
-//                Row(horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
-////                    Text(text = "heel/dc",Modifier.weight(3f).padding(start = 20.dp), overflow = TextOverflow.Clip, maxLines = 1
-////                    )
-//                    filePath?.path?.let {
-//                        Text(
-//                            text = it,
-//                            Modifier
-//                                .weight(3f)
-//                                .padding(start = 20.dp),
-//                            overflow = TextOverflow.Clip
-//                        )
-//                        IconButton(onClick = { pdfPickerLauncher.launch("application/pdf") }) {
-//                            Icon(
-//                                painter = painterResource(R.drawable.edbutton),
-//                                contentDescription = null,
-//                                Modifier
-//                                    .padding(10.dp)
-//                                    .height(24.dp)
-//                            )
-//                        }
-//                    }
-                }
-//            }
-//
-//
-//
-//            Spacer(
-//                modifier =
-//                Modifier.height(16.dp)
-//            )
-//
-//            Button(onClick = {
-//                loading= true
-//                filePath?.let {
-//                    uploadPdf(it) { Arli ->
-//                        url = Arli
-//                        loading = false
-//                        addFilesViewModel(Files(name, url, subNumber), context = context)
-//                        name = ""
-//                        filePath = null
-//                        subNumber = "Select Subject"
-//                    }
-//                }
-//            }) {
-//                Text(text = "Upload PDF")
-//            }
         }
 
 

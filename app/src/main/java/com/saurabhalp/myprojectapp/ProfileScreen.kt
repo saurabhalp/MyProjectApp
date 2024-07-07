@@ -8,14 +8,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -35,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -46,6 +55,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun ProfileScreen(navController: NavController) {
     //todo : add option to update profile picture through firebase
+    var loading = remember { mutableStateOf(true) }
     val context = LocalContext.current
     var email = remember { mutableStateOf("") }
     var name = remember { mutableStateOf("") }
@@ -62,7 +72,7 @@ fun ProfileScreen(navController: NavController) {
     docRef?.get()?.addOnSuccessListener { document ->
         if (document != null) {
             name.value = document.getString("name") ?: "User3"
-            userType = document.getString("userType")?: "2"
+            userType = document.getString("userType") ?: "2"
         } else {
             Toast.makeText(context, "error in fetching name", Toast.LENGTH_SHORT).show()
             name.value = "User1"
@@ -71,81 +81,96 @@ fun ProfileScreen(navController: NavController) {
         Log.w("FetchUsername", "Error getting document", exception)
         name.value = "UserName"
     }
-    Scaffold(
-        Modifier.background(Color(0xffe3f1fb)),
-        topBar = {
-            TopAppBar(title = { Text("Profile",Modifier.padding(start = 20.dp)
-                , fontWeight = FontWeight.Bold)}, colors =
-            TopAppBarColors(Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xfff1f9fe),Color(0xff0d2c3f),Color(0xfff1f9fe),)
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(
+                start = WindowInsets.safeDrawing
+                    .asPaddingValues()
+                    .calculateStartPadding(LayoutDirection.Ltr),
+                end = WindowInsets.safeDrawing
+                    .asPaddingValues()
+                    .calculateEndPadding(LayoutDirection.Ltr),
             )
-        }
     ) {
-
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(it).background(Color(0xfff1f9fe)),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Scaffold(
+            Modifier.background(Color(0xffe3f1fb)),
+            { Topbar(title = "Profile")}
         ) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .height(100.dp)
-            ) {
-                Box(
-                    Modifier
-                        .padding(8.dp)
-                        .weight(1f)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.profile),
-                        contentDescription = "Profile",
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier
-                            .height(100.dp)
-                            .padding(8.dp)
-                            .clip(RoundedCornerShape(50))
-                    )
-                }
-                Column(
-                    Modifier
-                        .weight(2f)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Text(
-                        name.value,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = Color(0xff0d2c3f)
-                    )
 
-                    Text(
-                        text = email.value,
-                        color = Color(0xff0d2c3f)
-                    )
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .background(Color(0xfff1f9fe)),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                if(loading.value){
+                    CircularProgressIndicator()
+                }
+                else {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .height(100.dp)
+                    ) {
+                        Box(
+                            Modifier
+                                .padding(8.dp)
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.profile),
+                                contentDescription = "Profile",
+                                contentScale = ContentScale.FillBounds,
+                                modifier = Modifier
+                                    .height(100.dp)
+                                    .padding(8.dp)
+                                    .clip(RoundedCornerShape(50))
+                            )
+                        }
+                        Column(
+                            Modifier
+                                .weight(2f)
+                                .align(Alignment.CenterVertically)
+                        ) {
+                            Text(
+                                name.value,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                color = Color(0xff0d2c3f)
+                            )
+
+                            Text(
+                                text = email.value,
+                                color = Color(0xff0d2c3f)
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                    }
                     Spacer(modifier = Modifier.height(20.dp))
                 }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
 
-            if (db != null) {
-                db.reload()
-                if (!db.isEmailVerified) {
-                    Button(
-                        onClick = { 
-                            FirebaseAuth.getInstance().currentUser?.sendEmailVerification()
-                                ?.addOnSuccessListener {
-                                    Toast.makeText(context, "Email Sent", Toast.LENGTH_SHORT).show()
-                                }
+                if (db != null) {
+                    db.reload()
+                    if (!db.isEmailVerified) {
+                        Button(
+                            onClick = {
+                                FirebaseAuth.getInstance().currentUser?.sendEmailVerification()
+                                    ?.addOnSuccessListener {
+                                        Toast.makeText(context, "Email Sent", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                            }
+                        ) {
+                            Text(text = "Verify Email", color = Color(0xff0d2c3f))
+
                         }
-                    ) {
-                        Text(text = "Verify Email",color = Color(0xff0d2c3f))
-
                     }
-                }
-                if (db.email.toString() == "saurabhk.nitp@gmail.com" || userType == "1" || db.isEmailVerified)
-                    UploadPdfScreen()
+                    if (db.email.toString() == "saurabhk.nitp@gmail.com" || userType == "1" || db.isEmailVerified)
+                        UploadPdfScreen()
                 }
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -158,9 +183,11 @@ fun ProfileScreen(navController: NavController) {
                 ) {
                     Text(text = "Logout", color = Color(0xff0d2c3f))
                 }
+                loading.value = false
             }
         }
     }
+}
 
 @Preview
 @Composable

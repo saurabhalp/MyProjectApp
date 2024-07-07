@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -60,7 +61,9 @@ fun Screen2(navController: NavHostController) {
     var enable by remember { mutableStateOf(true) }
     var loading by remember { mutableStateOf(false) }
     var context = LocalContext.current
-    val db =Firebase.firestore
+    var confirmPassword by remember {
+        mutableStateOf("")
+    }
     Box(Modifier.fillMaxSize()){
         Image(
             painter = painterResource(R.drawable.bg),
@@ -74,6 +77,14 @@ fun Screen2(navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
            )
            {
+               Image(
+                   painter = painterResource(R.drawable.ic_launcher),
+                   contentDescription = "AppLogo",
+                   modifier = Modifier.size(100.dp)
+
+               )
+//
+               Spacer(modifier = Modifier.height(8.dp))
 
                OutlinedTextField(
                    value = name.value,
@@ -85,6 +96,7 @@ fun Screen2(navController: NavHostController) {
                 onValueChange = {email.value=it},
                 label = ({ Text("Email") })
                )
+
                OutlinedTextField(
                    value = password.value,
                    onValueChange = {password.value=it},
@@ -101,7 +113,14 @@ fun Screen2(navController: NavHostController) {
                        }
                    }
                )
+
+               OutlinedTextField(value = confirmPassword, onValueChange = {confirmPassword = it},
+                   label = {Text(text = "Confirm Password")},
+                   visualTransformation = PasswordVisualTransformation())
+
                Spacer(Modifier.height(16.dp))
+
+
 
                if(loading) {
                    CircularProgressIndicator()
@@ -109,77 +128,84 @@ fun Screen2(navController: NavHostController) {
                 else{
 
                Button(onClick = {
-                   loading=true
+                   if (password.value == confirmPassword) {
+                       loading = true
 
-                   try {
-                       FirebaseAuth.getInstance().createUserWithEmailAndPassword(email.value, password.value)
-                           .addOnCompleteListener { task ->
-                               if (task.isSuccessful) {
-                                   val user = FirebaseAuth.getInstance().currentUser
-                                   user?.let {
-                                       val userMap = hashMapOf(
-                                           "name" to name.value,
-                                           "email" to email.value,
-                                           "password" to password.value,
-                                           "userType" to "0"
-                                       )
+                       try {
+                           FirebaseAuth.getInstance()
+                               .createUserWithEmailAndPassword(email.value, password.value)
+                               .addOnCompleteListener { task ->
+                                   if (task.isSuccessful) {
+                                       val user = FirebaseAuth.getInstance().currentUser
+                                       user?.let {
+                                           val userMap = hashMapOf(
+                                               "name" to name.value,
+                                               "email" to email.value,
+                                               "password" to password.value,
+                                               "userType" to "0"
+                                           )
 
-                                       try {
-                                           FirebaseFirestore.getInstance().collection("users").document(it.uid).set(userMap)
-                                               .addOnSuccessListener {
-                                                   Toast.makeText(
-                                                       context,
-                                                       "Registration Successful",
-                                                       Toast.LENGTH_SHORT
-                                                   ).show()
-                                                   navController.navigate("login")
-                                               }
-                                               .addOnFailureListener {
-                                                   Toast.makeText(
-                                                       context,
-                                                       "Failed to save user data",
-                                                       Toast.LENGTH_SHORT
-                                                   ).show()
-                                               }
+                                           try {
+                                               FirebaseFirestore.getInstance().collection("users")
+                                                   .document(it.uid).set(userMap)
+                                                   .addOnSuccessListener {
+                                                       Toast.makeText(
+                                                           context,
+                                                           "Registration Successful",
+                                                           Toast.LENGTH_SHORT
+                                                       ).show()
+                                                       navController.navigate("login")
+                                                   }
+                                                   .addOnFailureListener {
+                                                       Toast.makeText(
+                                                           context,
+                                                           "Failed to save user data",
+                                                           Toast.LENGTH_SHORT
+                                                       ).show()
+                                                   }
 
-                                           loading = false
+                                               loading = false
 
 
-                                       } catch (e: Exception) {
-                                           loading = false
-                                           Toast.makeText(
-                                               context,
-                                               "${e.message}",
-                                               Toast.LENGTH_SHORT).show()
+                                           } catch (e: Exception) {
+                                               loading = false
+                                               Toast.makeText(
+                                                   context,
+                                                   "${e.message}",
+                                                   Toast.LENGTH_SHORT
+                                               ).show()
+                                           }
                                        }
                                    }
                                }
-                           }
-                   }
-                   catch (f: Exception) {
-                       loading = false
-                       Toast.makeText(
-                           context,
-                           "${f.message}",
-                           Toast.LENGTH_SHORT
-                       )
-                           .show()
+                       } catch (f: Exception) {
+                           loading = false
+                           Toast.makeText(
+                               context,
+                               "${f.message}",
+                               Toast.LENGTH_SHORT
+                           )
+                               .show()
+                       }
+                   } else {
+                       Toast.makeText(context, "Password doesn't match", Toast.LENGTH_SHORT).show()
                    }
                }
-        ) {
+               ){
                    Text(
                        "Register",
 
                        )
                }
                }
+               Spacer(Modifier.height(16.dp))
 
                TextButton(onClick = {
                    navController.navigate("login")
                    { popUpTo("login") { inclusive = true } }
                },
                    colors =  ButtonDefaults.textButtonColors(Color.White)) {
-                   Text("Already have a account? SignIn",
+                   Text("Already have an account? LogIn",
                        color = Color.Blue)
 
                }

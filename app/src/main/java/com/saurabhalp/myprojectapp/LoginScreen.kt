@@ -119,8 +119,6 @@ fun LoginScreen(navController: NavHostController) {
                     },
                     trailingIcon = {
                         painterResource(id = R.drawable.icon1)
-
-
                         IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
                             Icon(
                                 painter = painterResource(R.drawable.icon1),
